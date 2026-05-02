@@ -1,5 +1,6 @@
 node_modules/
 .env
 data/
+redis-data/
 npm-debug.log*
 redis-data

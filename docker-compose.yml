@@ -32,6 +32,4 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ""
       BULL_VERSION: BULLMQ
-      BULLMQ_QUEUES: ${BULLMQ_HEALTH_QUEUE:-health-check-queue}
