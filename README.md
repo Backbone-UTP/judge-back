@@ -66,6 +66,7 @@ DB_NAME=judge_back
 REDIS_HOST=localhost
 REDIS_PORT=6378
 BULLBOARD_PORT=7307
+BULLMQ_HEALTH_QUEUE=health-check-queue
 
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 JWT_SECRET=replace-with-a-strong-secret
@@ -132,9 +133,17 @@ Respuesta esperada (ejemplo):
 ```json
 {
   "message": "OK",
-  "databaseTime": "2026-04-18T12:00:00.000Z"
+  "databaseTime": "2026-04-18T12:00:00.000Z",
+  "bullmq": {
+    "queue": "health-check-queue",
+    "jobId": "1",
+    "name": "health-check-job"
+  }
 }
 ```
+
+Cada vez que llamas `GET /health`, el backend crea un job nuevo en BullMQ.
+Luego lo puedes ver en Bull Board.
 
 ## Login con Google (solo Google)
 
@@ -208,6 +217,12 @@ Abrir Bull Board en local:
 ```bash
 http://localhost:7307
 ```
+
+Prueba rapida de BullMQ:
+
+1. Ejecuta `curl http://localhost:3000/health` varias veces.
+2. Abre Bull Board en `http://localhost:7307`.
+3. Valida que existe actividad en la cola `health-check-queue`.
 
 Detener infraestructura local:
 
