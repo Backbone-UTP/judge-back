@@ -63,6 +63,10 @@ DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=judge_back
 
+REDIS_HOST=localhost
+REDIS_PORT=6378
+BULLBOARD_PORT=7307
+
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 JWT_SECRET=replace-with-a-strong-secret
 JWT_EXPIRES_IN=7d
@@ -73,6 +77,11 @@ Notas de autenticacion:
 - Este backend usa login solo con Google (sin correo/contrasena local).
 - `GOOGLE_CLIENT_ID` debe ser el mismo client ID configurado en tu frontend.
 - `JWT_SECRET` se usa para firmar el token propio del backend.
+
+Notas de infraestructura local:
+
+- `REDIS_PORT` expone Redis en tu maquina local.
+- `BULLBOARD_PORT` expone la UI de Bull Board.
 
 ## Levantar el proyecto (paso a paso)
 
@@ -87,6 +96,12 @@ npm install
 ```bash
 docker compose up -d
 ```
+
+Este comando levanta:
+
+- PostgreSQL
+- Redis
+- Bull Board
 
 3) Verificar que PostgreSQL esta arriba
 

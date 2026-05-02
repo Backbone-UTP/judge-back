@@ -11,3 +11,25 @@ services:
       POSTGRES_DB: ${DB_NAME:-judge_back}
     volumes:
       - ./data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: judge-back-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6378}:6379"
+    volumes:
+      - ./redis-data:/data
+
+  bullboard:
+    image: deadly0/bull-board:latest
+    container_name: judge-back-bullboard
+    restart: unless-stopped
+    depends_on:
+      - redis
+    ports:
+      - "${BULLBOARD_PORT:-7307}:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
