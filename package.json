@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/main.js",
     "start:dev": "nodemon src/main.js",
+    "start:worker": "node src/workers/start-workers.js",
     "test": "echo \"No tests yet\""
   },
   "keywords": [],
