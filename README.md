@@ -91,7 +91,7 @@ Notas de infraestructura local:
 npm install
 ```
 
-2) Levantar PostgreSQL
+2) Levantar infraestructura local (PostgreSQL + Redis + Bull Board)
 
 ```bash
 docker compose up -d
@@ -103,11 +103,17 @@ Este comando levanta:
 - Redis
 - Bull Board
 
-3) Verificar que PostgreSQL esta arriba
+3) Verificar que los contenedores estan arriba
 
 ```bash
 docker ps
 ```
+
+Deberias ver al menos estos contenedores:
+
+- `judge-back-postgres`
+- `judge-back-redis`
+- `judge-back-bullboard`
 
 4) Iniciar backend
 
@@ -131,6 +137,8 @@ Respuesta esperada (ejemplo):
 ```
 
 ## Login con Google (solo Google)
+
+Si aun no tienes frontend, puedes generar un `idToken` desde OAuth Playground y probar este endpoint con `curl`.
 
 Endpoint de login:
 
@@ -173,6 +181,7 @@ Importante:
 
 - La tabla `users` se crea automaticamente al arrancar la app.
 - No existe login con password en este backend.
+- El `idToken` debe tener como `aud` el mismo `GOOGLE_CLIENT_ID` que configuraste en `.env`.
 
 ## Comandos utiles
 
@@ -192,6 +201,12 @@ Ver logs de contenedores:
 
 ```bash
 docker compose logs -f
+```
+
+Abrir Bull Board en local:
+
+```bash
+http://localhost:7307
 ```
 
 Detener infraestructura local:
