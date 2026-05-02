@@ -3,4 +3,3 @@ node_modules/
 data/
 redis-data/
 npm-debug.log*
-redis-data
