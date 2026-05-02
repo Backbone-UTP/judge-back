@@ -1,0 +1,25 @@
+{
+  "name": "judge-back",
+  "version": "1.0.0",
+  "description": "Starter API con Express estilo Nest y PostgreSQL",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "start:dev": "nodemon src/main.js",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "google-auth-library": "^10.6.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
