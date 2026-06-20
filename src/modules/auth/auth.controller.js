@@ -1,8 +1,15 @@
 const { Router } = require('express');
+const env = require('../../config/env');
 const authService = require('./auth.service');
 const { authGuard } = require('./auth.middleware');
+const { renderGoogleIdTokenPlayground } = require('./utils/google-playground');
 
 const router = Router();
+
+router.get('/google/playground', (_req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.status(200).send(renderGoogleIdTokenPlayground(env.auth.googleClientId));
+});
 
 router.post('/google', async (req, res, next) => {
   try {

@@ -68,16 +68,17 @@ REDIS_PORT=6378
 BULLBOARD_PORT=7307
 BULLMQ_HEALTH_QUEUE=health-check-queue
 
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com 
 JWT_SECRET=replace-with-a-strong-secret
 JWT_EXPIRES_IN=7d
 ```
 
 Notas de autenticacion:
 
-- Este backend usa login solo con Google (sin correo/contrasena local).
-- `GOOGLE_CLIENT_ID` debe ser el mismo client ID configurado en tu frontend.
+- Este backend usa login solo con Google (sin correo/contraseña local).
+- `GOOGLE_CLIENT_ID` debe ser el mismo client ID configurado en tu frontend, se crea desde la consola de Google Cloud **https://console.cloud.google.com/**.
 - `JWT_SECRET` se usa para firmar el token propio del backend.
+- `idToken` es el token que devuelve Google al hacer login, se valida en el backend usando el client ID, se puede acceder a el a través de **http://localhost:3000/auth/google/playground** (sí no hay frontend).
 
 Notas de infraestructura local:
 
@@ -147,7 +148,29 @@ Luego lo puedes ver en Bull Board.
 
 ## Login con Google (solo Google)
 
-Si aun no tienes frontend, puedes generar un `idToken` desde OAuth Playground y probar este endpoint con `curl`.
+Si aun no tienes frontend, abre esta ruta en el navegador para sacar un `idToken` real:
+
+```bash
+http://localhost:3000/auth/google/playground
+```
+
+La pagina te muestra un boton de Google Login, guarda el token devuelto en pantalla y luego puedes probar el endpoint con `curl`.
+
+Cuando ya tengas el token, mandalo asi:
+
+```bash
+curl -X POST http://localhost:3000/auth/google ^
+  -H "Content-Type: application/json" ^
+  -d "{\"idToken\":\"PEGAR_TOKEN_AQUI\"}"
+```
+
+En PowerShell, el mismo request queda asi:
+
+```powershell
+Invoke-RestMethod -Method Post http://localhost:3000/auth/google `
+  -ContentType 'application/json' `
+  -Body '{"idToken":"PEGAR_TOKEN_AQUI"}'
+```
 
 Endpoint de login:
 
