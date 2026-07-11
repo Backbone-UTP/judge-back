@@ -14,7 +14,8 @@ async function bootstrap() {
   app.use((error, _req, res, _next) => {
     const message = error.message || 'Internal server error';
     const statusCode =
-      message === 'Invalid Google account payload' || message === 'Invalid Google token' ? 401 : 500;
+      error.statusCode ||
+      (message === 'Invalid Google account payload' || message === 'Invalid Google token' ? 401 : 500);
 
     res.status(statusCode).json({
       message,
