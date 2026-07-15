@@ -7,7 +7,6 @@ function renderGoogleIdTokenPlayground(clientId) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Google ID Token Playground</title>
-    <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogle()"></script>
     <style>
       body {
         margin: 0;
@@ -48,10 +47,9 @@ function renderGoogleIdTokenPlayground(clientId) {
         google.accounts.id.initialize({
           client_id: clientId,
           callback: (response) => {
-            setToken(response && response.credential ? response.credential : '');
-            setStatus(response && response.credential ? 'Token recibido.' : 'Google no devolvió un token.');
-          },
-        });
+            setToken(response?.credential ?? '');
+      },
+    });
 
         google.accounts.id.renderButton(document.getElementById('button'), {
           theme: 'outline',
@@ -59,6 +57,8 @@ function renderGoogleIdTokenPlayground(clientId) {
         });
       };
     </script>
+
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogle()"></script>
   </body>
 </html>`;
 }
