@@ -46,25 +46,17 @@ async function createSubmission(submission) {
 }
 
 async function problemExists(problemId) {
-  try {
-    const result = await db.query(
-      `
-        SELECT 1
-        FROM problems
-        WHERE id = $1
-        LIMIT 1;
-      `,
-      [problemId],
-    );
+  const result = await db.query(
+    `
+      SELECT 1
+      FROM problems
+      WHERE id = $1
+      LIMIT 1;
+    `,
+    [problemId],
+  );
 
-    return result.rowCount > 0;
-  } catch (error) {
-    if (error && error.code === '42P01') {
-      return false;
-    }
-
-    throw error;
-  }
+  return result.rowCount > 0;
 }
 
 async function findSubmissionById(id) {

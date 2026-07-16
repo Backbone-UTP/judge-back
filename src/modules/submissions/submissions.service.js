@@ -14,7 +14,14 @@ function normalizeLanguage(language) {
 }
 
 function ensureSubmissionPayload({ problemId, language, sourceCode }) {
-  const parsedProblemId = Number(problemId);
+
+  let parsedProblemId;
+
+  if(typeof problemId === 'string' || typeof problemId === 'number') {
+      parsedProblemId = Number(problemId);
+  } else {
+    throw createHttpError('problemId must be a string or a number', 400);
+  }
 
   if (!Number.isInteger(parsedProblemId) || parsedProblemId <= 0) {
     throw createHttpError('problemId must be a positive integer', 400);
@@ -45,7 +52,7 @@ async function initSubmissionsModule() {
   await submissionsRepository.ensureSubmissionsTables();
 }
 
-async function createSubmission({ userId, problemId, language, sourceCode }) {
+async function createSubmission({ userId, problemId, language, sourceCode }) { // Think in implement Transactional Outbox (Outbox pattern) for manage the consistency between the database and the queue.
   const payload = ensureSubmissionPayload({ problemId, language, sourceCode });
   const hasProblem = await submissionsRepository.problemExists(payload.problemId);
 
