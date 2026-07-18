@@ -11,7 +11,8 @@ CREATE TABLE "problems" (
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "problems_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "problems_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "problems_difficulty_check" CHECK ("difficulty" IN ('easy', 'medium', 'hard'))
 );
 
 -- CreateTable
@@ -35,4 +36,3 @@ CREATE UNIQUE INDEX "users_google_sub_key" ON "users"("google_sub");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
-

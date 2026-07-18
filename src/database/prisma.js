@@ -2,9 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const env = require('../config/env');
 
-const connectionString = `postgresql://${env.db.user}:${env.db.password}@${env.db.host}:${env.db.port}/${env.db.database}?schema=public`;
-
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaPg({ connectionString: env.databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
 async function disconnect() {
