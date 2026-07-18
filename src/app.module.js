@@ -1,7 +1,7 @@
 const healthModule = require('./modules/health/health.module');
 const authModule = require('./modules/auth/auth.module');
-
-const modules = [healthModule, authModule];
+const problemsModule = require('./modules/problems/problems.module');
+const modules = [healthModule, authModule, problemsModule];
 
 async function registerModules(app) {
   for (const moduleConfig of modules) {
