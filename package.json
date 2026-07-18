@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/main.js",
     "start:dev": "nodemon src/main.js",
-    "test": "echo \"No tests yet\"",
+    "test": "node --test",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:validate": "prisma validate",
