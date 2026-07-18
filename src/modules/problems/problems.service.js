@@ -21,16 +21,11 @@ function toPublicProblem(row) {
     };
 }
 
-async function initProblemsModule() {
-    await problemsRepository.ensureProblemsTables();
-}
-
 async function listProblems() {
     const rows = await problemsRepository.findAllProblems();
     return rows.map(toPublicProblem);
 }
 
 module.exports = {
-    initProblemsModule,
     listProblems,
 };
