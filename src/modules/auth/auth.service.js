@@ -5,10 +5,6 @@ const authRepository = require('./auth.repository');
 
 const googleClient = new OAuth2Client(env.auth.googleClientId);
 
-async function initAuthModule() {
-  await authRepository.ensureAuthTables();
-}
-
 async function loginWithGoogle(idToken) {
   if (!env.auth.googleClientId) {
     throw new Error('Missing GOOGLE_CLIENT_ID in environment variables');
@@ -62,7 +58,6 @@ async function getMe(userId) {
 }
 
 module.exports = {
-  initAuthModule,
   loginWithGoogle,
   verifyAppToken,
   getMe,
