@@ -4,6 +4,13 @@ const path = require('path');
 const TEST_CASES_DIR = path.resolve(__dirname, '../../files/test-cases');
 
 async function getAllTestCases(problemId) {
+
+  if (!/^\d+$/.test(problemId)) {
+    const error = new Error('Invalid problem ID');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const filePath = path.join(TEST_CASES_DIR, `problema-${problemId}.json`);
   
   try {
@@ -26,9 +33,9 @@ async function getAllTestCases(problemId) {
     return testCases;
   } catch (error) {
     if (error.code === 'ENOENT') {
-      const notFoundError = new Error('Test cases file not found');
-      notFoundError.statusCode = 404;
-      throw notFoundError;
+      const err = new Error('Test cases file not found');
+      err.statusCode = 404;
+      throw err;
     }
     
     if (error.message === 'Unexpected token') {
