@@ -1,8 +1,8 @@
 const healthModule = require('./modules/health/health.module');
 const authModule = require('./modules/auth/auth.module');
+const problemsModule = require('./modules/problems/problems.module');
 const submissionsModule = require('./modules/submissions/submissions.module');
-
-const defaultModules = [healthModule, authModule, submissionsModule];
+const modules = [healthModule, authModule];
 
 async function registerModules(app, modules = defaultModules) {
   for (const moduleConfig of modules) {
@@ -16,5 +16,5 @@ async function registerModules(app, modules = defaultModules) {
 
 module.exports = {
   registerModules,
-  defaultModules,
+  modules,
 };

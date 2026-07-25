@@ -1,19 +1,5 @@
 const db = require('../../database/postgres');
 
-async function ensureAuthTables() {
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id BIGSERIAL PRIMARY KEY,
-      google_sub TEXT NOT NULL UNIQUE,
-      email TEXT NOT NULL UNIQUE,
-      full_name TEXT,
-      avatar_url TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-}
-
 async function upsertGoogleUser(user) {
   const result = await db.query(
     `
@@ -47,7 +33,6 @@ async function findUserById(id) {
 }
 
 module.exports = {
-  ensureAuthTables,
   upsertGoogleUser,
   findUserById,
 };
