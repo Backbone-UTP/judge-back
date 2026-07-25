@@ -52,7 +52,7 @@ async function initSubmissionsModule() {
   await submissionsRepository.ensureSubmissionsTables();
 }
 
-async function createSubmission({ userId, problemId, language, sourceCode }) { // Think in implement Transactional Outbox (Outbox pattern) for manage the consistency between the database and the queue.
+async function createSubmission({ userId, problemId, language, sourceCode }) { 
   const payload = ensureSubmissionPayload({ problemId, language, sourceCode });
   const hasProblem = await submissionsRepository.problemExists(payload.problemId);
 
