@@ -1,75 +1,59 @@
-const db = require('../../database/postgres');
+const prisma = require('../../database/prisma');
 
 async function ensureSubmissionsTables() {
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS submissions (
-      id BIGSERIAL PRIMARY KEY,
-      user_id BIGINT NOT NULL REFERENCES users(id),
-      problem_id BIGINT NOT NULL,
-      language TEXT NOT NULL,
-      source_code TEXT NOT NULL,
-      status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'finished', 'failed')),
-      verdict TEXT CHECK (verdict IN ('AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'PE') OR verdict IS NULL),
-      execution_time_ms INTEGER,
-      memory_kb INTEGER,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
+  return null;
 }
 
 async function createSubmission(submission) {
-  const result = await db.query(
-    `
-      INSERT INTO submissions (
-        user_id,
-        problem_id,
-        language,
-        source_code,
-        status,
-        verdict
-      )
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, status, verdict, created_at;
-    `,
-    [
-      submission.userId,
-      submission.problemId,
-      submission.language,
-      submission.sourceCode,
-      submission.status,
-      submission.verdict,
-    ],
-  );
+  const created = await prisma.submission.create({
+    data: {
+      userId: BigInt(submission.userId),
+      problemId: BigInt(submission.problemId),
+      language: submission.language,
+      sourceCode: submission.sourceCode,
+      status: submission.status,
+      verdict: submission.verdict,
+    },
+  });
 
-  return result.rows[0];
+  return {
+    id: created.id,
+    status: created.status,
+    verdict: created.verdict,
+    created_at: created.createdAt,
+    updated_at: created.updatedAt,
+  };
 }
 
 async function problemExists(problemId) {
-  const result = await db.query(
-    `
-      SELECT 1
-      FROM problems
-      WHERE id = $1
-      LIMIT 1;
-    `,
-    [problemId],
-  );
+  const problem = await prisma.problem.findUnique({
+    where: { id: BigInt(problemId) },
+    select: { id: true },
+  });
 
-  return result.rowCount > 0;
+  return Boolean(problem);
 }
 
 async function findSubmissionById(id) {
-  const result = await db.query(
-    `
-      SELECT id, user_id, problem_id, language, source_code, status, verdict, created_at, updated_at
-      FROM submissions
-      WHERE id = $1;
-    `,
-    [id],
-  );
+  const submission = await prisma.submission.findUnique({
+    where: { id: BigInt(id) },
+  });
 
-  return result.rows[0] || null;
+  if (!submission) {
+    return null;
+  }
+
+  return {
+    id: submission.id,
+    user_id: submission.userId,
+    problem_id: submission.problemId,
+    language: submission.language,
+    source_code: submission.sourceCode,
+    status: submission.status,
+    verdict: submission.verdict,
+    created_at: submission.createdAt,
+    updated_at: submission.updatedAt,
+  };
 }
 
 module.exports = {
