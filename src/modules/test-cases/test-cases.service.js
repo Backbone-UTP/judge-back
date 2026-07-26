@@ -3,7 +3,7 @@ const path = require('path');
 
 const TEST_CASES_DIR = path.resolve(__dirname, '../../files/test-cases');
 
-async function getAllTestCases(problemId, baseDir = TEST_CASES_DIR) {
+async function getAllTestCases(problemId) {
 
   if (!/^\d+$/.test(problemId)) {
     const error = new Error('Invalid problem ID');
@@ -11,7 +11,7 @@ async function getAllTestCases(problemId, baseDir = TEST_CASES_DIR) {
     throw error;
   }
 
-  const filePath = path.join(baseDir, `problema-${problemId}.json`);
+  const filePath = path.join(TEST_CASES_DIR, `problema-${problemId}.json`);
   
   try {
     const fileContent = await fs.readFile(filePath, 'utf8');
@@ -38,7 +38,7 @@ async function getAllTestCases(problemId, baseDir = TEST_CASES_DIR) {
       throw err;
     }
     
-    if (error instanceof SyntaxError) {
+    if (error.message === 'Unexpected token') {
       const parseError = new Error('Invalid JSON in test cases file');
       parseError.statusCode = 500;
       throw parseError;
@@ -48,8 +48,8 @@ async function getAllTestCases(problemId, baseDir = TEST_CASES_DIR) {
   }
 }
 
-async function getPublicTestCases(problemId, baseDir = TEST_CASES_DIR) {
-  const testCases = await getAllTestCases(problemId, baseDir);
+async function getPublicTestCases(problemId) {
+  const testCases = await getAllTestCases(problemId);
   
   const publicCases = testCases.filter(testCase => testCase.is_sample === true);
   
