@@ -8,13 +8,15 @@ datasource db {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model Problem {
-  id         BigInt   @id @default(autoincrement())
-  slug       String   @unique
-  title      String
-  difficulty String
-  statement  String
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  id          BigInt   @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  difficulty  String
+  statement   String
+  examples    Json     @default("[]")
+  constraints Json     @default("[]")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("problems")
 }
