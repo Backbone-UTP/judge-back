@@ -43,6 +43,8 @@ model Submission {
   sourceCode       String   @map("source_code")
   status           String
   verdict          String?
+  queueJobId       String?  @map("queue_job_id")
+  queueError       String?  @map("queue_error")
   executionTimeMs  Int?     @map("execution_time_ms")
   memoryKb         Int?     @map("memory_kb")
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)

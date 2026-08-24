@@ -25,10 +25,12 @@ test('POST /submissions creates a queued submission', async (t) => {
   const originalVerifyAppToken = authService.verifyAppToken;
   const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalCreateSubmission = submissionsRepository.createSubmission;
+  const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalProblemExists = submissionsRepository.problemExists;
   const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
 
   const queueCalls = [];
+  const queueTrackingCalls = [];
 
   authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
   submissionsRepository.ensureSubmissionsTables = async () => {};
@@ -37,8 +39,13 @@ test('POST /submissions creates a queued submission', async (t) => {
     id: 77,
     status: submission.status,
     verdict: submission.verdict,
+    queue_job_id: submission.queueJobId,
+    queue_error: submission.queueError,
     created_at: '2026-07-10T12:34:56.000Z',
   });
+  submissionsRepository.updateSubmissionQueueTracking = async (id, payload) => {
+    queueTrackingCalls.push({ id, payload });
+  };
   submissionsQueue.enqueueSubmissionJob = async (payload) => {
     queueCalls.push(payload);
     return { id: 'job-1' };
@@ -48,6 +55,7 @@ test('POST /submissions creates a queued submission', async (t) => {
     authService.verifyAppToken = originalVerifyAppToken;
     submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.createSubmission = originalCreateSubmission;
+    submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
     submissionsRepository.problemExists = originalProblemExists;
     submissionsQueue.enqueueSubmissionJob = originalEnqueueSubmissionJob;
   });
@@ -85,12 +93,24 @@ test('POST /submissions creates a queued submission', async (t) => {
     sourceCode: 'print("hello")',
     createdAt: '2026-07-10T12:34:56.000Z',
   });
+
+  assert.deepEqual(queueTrackingCalls, [
+    {
+      id: 77,
+      payload: {
+        status: 'queued',
+        queueJobId: 'job-1',
+        queueError: null,
+      },
+    },
+  ]);
 });
 
 test('POST /submissions returns 404 when the problem does not exist', async (t) => {
   const originalVerifyAppToken = authService.verifyAppToken;
   const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalCreateSubmission = submissionsRepository.createSubmission;
+  const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalProblemExists = submissionsRepository.problemExists;
   const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
 
@@ -100,6 +120,9 @@ test('POST /submissions returns 404 when the problem does not exist', async (t) 
   submissionsRepository.createSubmission = async () => {
     throw new Error('createSubmission should not be called when problem is missing');
   };
+  submissionsRepository.updateSubmissionQueueTracking = async () => {
+    throw new Error('updateSubmissionQueueTracking should not be called when problem is missing');
+  };
   submissionsQueue.enqueueSubmissionJob = async () => {
     throw new Error('enqueueSubmissionJob should not be called when problem is missing');
   };
@@ -108,6 +131,7 @@ test('POST /submissions returns 404 when the problem does not exist', async (t) 
     authService.verifyAppToken = originalVerifyAppToken;
     submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.createSubmission = originalCreateSubmission;
+    submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
     submissionsRepository.problemExists = originalProblemExists;
     submissionsQueue.enqueueSubmissionJob = originalEnqueueSubmissionJob;
   });
@@ -140,6 +164,7 @@ test('POST /submissions rejects unsupported languages', async (t) => {
   const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalProblemExists = submissionsRepository.problemExists;
   const originalCreateSubmission = submissionsRepository.createSubmission;
+  const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
 
   authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
@@ -147,6 +172,9 @@ test('POST /submissions rejects unsupported languages', async (t) => {
   submissionsRepository.problemExists = async () => true;
   submissionsRepository.createSubmission = async () => {
     throw new Error('createSubmission should not be called for unsupported languages');
+  };
+  submissionsRepository.updateSubmissionQueueTracking = async () => {
+    throw new Error('updateSubmissionQueueTracking should not be called for unsupported languages');
   };
   submissionsQueue.enqueueSubmissionJob = async () => {
     throw new Error('enqueueSubmissionJob should not be called for unsupported languages');
@@ -157,6 +185,7 @@ test('POST /submissions rejects unsupported languages', async (t) => {
     submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.problemExists = originalProblemExists;
     submissionsRepository.createSubmission = originalCreateSubmission;
+    submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
     submissionsQueue.enqueueSubmissionJob = originalEnqueueSubmissionJob;
   });
 
@@ -181,4 +210,75 @@ test('POST /submissions rejects unsupported languages', async (t) => {
     message: 'Unsupported language',
     statusCode: 400,
   });
+});
+
+test('POST /submissions returns 503 and tracks queue error when enqueue fails', async (t) => {
+  const originalVerifyAppToken = authService.verifyAppToken;
+  const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
+  const originalCreateSubmission = submissionsRepository.createSubmission;
+  const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
+  const originalProblemExists = submissionsRepository.problemExists;
+  const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
+
+  const queueTrackingCalls = [];
+
+  authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
+  submissionsRepository.ensureSubmissionsTables = async () => {};
+  submissionsRepository.problemExists = async (id) => id === 9;
+  submissionsRepository.createSubmission = async (submission) => ({
+    id: 78,
+    status: submission.status,
+    verdict: submission.verdict,
+    queue_job_id: submission.queueJobId,
+    queue_error: submission.queueError,
+    created_at: '2026-07-10T12:35:56.000Z',
+  });
+  submissionsRepository.updateSubmissionQueueTracking = async (id, payload) => {
+    queueTrackingCalls.push({ id, payload });
+  };
+  submissionsQueue.enqueueSubmissionJob = async () => {
+    throw new Error('Redis unavailable');
+  };
+
+  t.after(() => {
+    authService.verifyAppToken = originalVerifyAppToken;
+    submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
+    submissionsRepository.createSubmission = originalCreateSubmission;
+    submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
+    submissionsRepository.problemExists = originalProblemExists;
+    submissionsQueue.enqueueSubmissionJob = originalEnqueueSubmissionJob;
+  });
+
+  const { server, baseUrl } = await startTestServer();
+  t.after(() => server.close());
+
+  const response = await fetch(`${baseUrl}/submissions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer fake-token',
+    },
+    body: JSON.stringify({
+      problemId: 9,
+      language: 'python',
+      sourceCode: 'print("hello")',
+    }),
+  });
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    message: 'Submission 78 was created but could not be enqueued',
+    statusCode: 503,
+  });
+
+  assert.deepEqual(queueTrackingCalls, [
+    {
+      id: 78,
+      payload: {
+        status: 'queue_error',
+        queueJobId: null,
+        queueError: 'Redis unavailable',
+      },
+    },
+  ]);
 });

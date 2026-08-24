@@ -13,6 +13,8 @@ async function createSubmission(submission) {
       sourceCode: submission.sourceCode,
       status: submission.status,
       verdict: submission.verdict,
+      queueJobId: submission.queueJobId,
+      queueError: submission.queueError,
     },
   });
 
@@ -20,8 +22,29 @@ async function createSubmission(submission) {
     id: String(created.id),
     status: created.status,
     verdict: created.verdict,
+    queue_job_id: created.queueJobId,
+    queue_error: created.queueError,
     created_at: created.createdAt,
     updated_at: created.updatedAt,
+  };
+}
+
+async function updateSubmissionQueueTracking(id, { status, queueJobId, queueError }) {
+  const updated = await prisma.submission.update({
+    where: { id: BigInt(id) },
+    data: {
+      status,
+      queueJobId,
+      queueError,
+    },
+  });
+
+  return {
+    id: updated.id,
+    status: updated.status,
+    queue_job_id: updated.queueJobId,
+    queue_error: updated.queueError,
+    updated_at: updated.updatedAt,
   };
 }
 
@@ -51,6 +74,8 @@ async function findSubmissionById(id) {
     source_code: submission.sourceCode,
     status: submission.status,
     verdict: submission.verdict,
+    queue_job_id: submission.queueJobId,
+    queue_error: submission.queueError,
     created_at: submission.createdAt,
     updated_at: submission.updatedAt,
   };
@@ -59,6 +84,7 @@ async function findSubmissionById(id) {
 module.exports = {
   ensureSubmissionsTables,
   createSubmission,
+  updateSubmissionQueueTracking,
   problemExists,
   findSubmissionById,
 };
