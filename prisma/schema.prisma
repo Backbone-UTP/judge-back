@@ -8,13 +8,14 @@ datasource db {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model Problem {
-  id         BigInt   @id @default(autoincrement())
-  slug       String   @unique
-  title      String
-  difficulty String
-  statement  String
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  id          BigInt       @id @default(autoincrement())
+  slug        String       @unique
+  title       String
+  difficulty  String
+  statement   String
+  submissions Submission[]
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("problems")
 }
@@ -37,6 +38,7 @@ model Submission {
   userId           BigInt   @map("user_id")
   user             User     @relation(fields: [userId], references: [id])
   problemId        BigInt   @map("problem_id")
+  problem          Problem  @relation(fields: [problemId], references: [id])
   language         String
   sourceCode       String   @map("source_code")
   status           String
@@ -44,7 +46,7 @@ model Submission {
   executionTimeMs  Int?     @map("execution_time_ms")
   memoryKb         Int?     @map("memory_kb")
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("submissions")
 }

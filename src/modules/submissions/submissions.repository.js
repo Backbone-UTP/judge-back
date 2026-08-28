@@ -17,7 +17,7 @@ async function createSubmission(submission) {
   });
 
   return {
-    id: created.id,
+    id: String(created.id),
     status: created.status,
     verdict: created.verdict,
     created_at: created.createdAt,
@@ -44,7 +44,7 @@ async function findSubmissionById(id) {
   }
 
   return {
-    id: submission.id,
+    id: String(submission.id),
     user_id: submission.userId,
     problem_id: submission.problemId,
     language: submission.language,
