@@ -22,6 +22,7 @@ const env = {
   },
   bullmq: {
     healthQueueName: process.env.BULLMQ_HEALTH_QUEUE || 'health-check-queue',
+    submissionQueueName: process.env.BULLMQ_SUBMISSION_QUEUE || 'submission-queue',
   },
 };
 
