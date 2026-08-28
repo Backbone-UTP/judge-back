@@ -1,4 +1,4 @@
-﻿-- CreateTable
+-- CreateTable
 CREATE TABLE "submissions" (
     "id" BIGSERIAL NOT NULL,
     "user_id" BIGINT NOT NULL,
