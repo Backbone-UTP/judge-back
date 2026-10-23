@@ -23,7 +23,6 @@ async function startTestServer() {
 
 test('POST /submissions creates a queued submission', async (t) => {
   const originalVerifyAppToken = authService.verifyAppToken;
-  const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalCreateSubmission = submissionsRepository.createSubmission;
   const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalProblemExists = submissionsRepository.problemExists;
@@ -33,7 +32,6 @@ test('POST /submissions creates a queued submission', async (t) => {
   const queueTrackingCalls = [];
 
   authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
-  submissionsRepository.ensureSubmissionsTables = async () => {};
   submissionsRepository.problemExists = async (id) => id === 9;
   submissionsRepository.createSubmission = async (submission) => ({
     id: 77,
@@ -53,7 +51,6 @@ test('POST /submissions creates a queued submission', async (t) => {
 
   t.after(() => {
     authService.verifyAppToken = originalVerifyAppToken;
-    submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.createSubmission = originalCreateSubmission;
     submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
     submissionsRepository.problemExists = originalProblemExists;
@@ -108,14 +105,12 @@ test('POST /submissions creates a queued submission', async (t) => {
 
 test('POST /submissions returns 404 when the problem does not exist', async (t) => {
   const originalVerifyAppToken = authService.verifyAppToken;
-  const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalCreateSubmission = submissionsRepository.createSubmission;
   const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalProblemExists = submissionsRepository.problemExists;
   const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
 
   authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
-  submissionsRepository.ensureSubmissionsTables = async () => {};
   submissionsRepository.problemExists = async () => false;
   submissionsRepository.createSubmission = async () => {
     throw new Error('createSubmission should not be called when problem is missing');
@@ -129,7 +124,6 @@ test('POST /submissions returns 404 when the problem does not exist', async (t) 
 
   t.after(() => {
     authService.verifyAppToken = originalVerifyAppToken;
-    submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.createSubmission = originalCreateSubmission;
     submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;
     submissionsRepository.problemExists = originalProblemExists;
@@ -161,14 +155,12 @@ test('POST /submissions returns 404 when the problem does not exist', async (t) 
 
 test('POST /submissions rejects unsupported languages', async (t) => {
   const originalVerifyAppToken = authService.verifyAppToken;
-  const originalEnsureSubmissionsTables = submissionsRepository.ensureSubmissionsTables;
   const originalProblemExists = submissionsRepository.problemExists;
   const originalCreateSubmission = submissionsRepository.createSubmission;
   const originalUpdateSubmissionQueueTracking = submissionsRepository.updateSubmissionQueueTracking;
   const originalEnqueueSubmissionJob = submissionsQueue.enqueueSubmissionJob;
 
   authService.verifyAppToken = () => ({ sub: 31, email: 'student@example.com' });
-  submissionsRepository.ensureSubmissionsTables = async () => {};
   submissionsRepository.problemExists = async () => true;
   submissionsRepository.createSubmission = async () => {
     throw new Error('createSubmission should not be called for unsupported languages');
@@ -182,7 +174,6 @@ test('POST /submissions rejects unsupported languages', async (t) => {
 
   t.after(() => {
     authService.verifyAppToken = originalVerifyAppToken;
-    submissionsRepository.ensureSubmissionsTables = originalEnsureSubmissionsTables;
     submissionsRepository.problemExists = originalProblemExists;
     submissionsRepository.createSubmission = originalCreateSubmission;
     submissionsRepository.updateSubmissionQueueTracking = originalUpdateSubmissionQueueTracking;

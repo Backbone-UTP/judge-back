@@ -57,10 +57,6 @@ function ensureSubmissionPayload({ problemId, language, sourceCode }) {
   };
 }
 
-async function initSubmissionsModule() {
-  await submissionsRepository.ensureSubmissionsTables();
-}
-
 async function createSubmission({ userId, problemId, language, sourceCode }) { 
   const payload = ensureSubmissionPayload({ problemId, language, sourceCode });
   const hasProblem = await submissionsRepository.problemExists(payload.problemId);
@@ -119,7 +115,6 @@ async function createSubmission({ userId, problemId, language, sourceCode }) {
 }
 
 module.exports = {
-  initSubmissionsModule,
   createSubmission,
   ensureSubmissionPayload,
   SUPPORTED_LANGUAGES,

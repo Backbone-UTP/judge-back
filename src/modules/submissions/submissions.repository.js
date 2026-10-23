@@ -1,9 +1,5 @@
 const prisma = require('../../database/prisma');
 
-async function ensureSubmissionsTables() {
-  return null;
-}
-
 async function createSubmission(submission) {
   const created = await prisma.submission.create({
     data: {
@@ -82,7 +78,6 @@ async function findSubmissionById(id) {
 }
 
 module.exports = {
-  ensureSubmissionsTables,
   createSubmission,
   updateSubmissionQueueTracking,
   problemExists,
