@@ -4,6 +4,15 @@ const authService = require('./auth.service');
 const { authGuard } = require('./auth.middleware');
 const { renderGoogleIdTokenPlayground } = require('./utils/google-playground');
 
+// TODO(auth-playground-merge): cuando se mergee la rama del playground, agregar:
+// 1) Import: const env = require('../../config/env');
+// 2) Import: const { renderGoogleIdTokenPlayground } = require('./utils/google-playground');
+// 3) Ruta GET /google/playground para renderizar HTML y obtener idToken desde Google Sign-In:
+// router.get('/google/playground', (_req, res) => {
+//   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+//   return res.status(200).send(renderGoogleIdTokenPlayground(env.auth.googleClientId));
+// });
+
 const router = Router();
 
 router.get('/google/playground', (_req, res) => {

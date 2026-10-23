@@ -1,26 +1,9 @@
 const express = require('express');
-const cors = require('cors');
 const env = require('./config/env');
-const { registerModules } = require('./app.module');
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
+const { createApp } = require('./app');
 
 async function bootstrap() {
-  await registerModules(app);
-
-  app.use((error, _req, res, _next) => {
-    const message = error.message || 'Internal server error';
-    const statusCode =
-      message === 'Invalid Google account payload' || message === 'Invalid Google token' ? 401 : 500;
-
-    res.status(statusCode).json({
-      message,
-      statusCode,
-    });
-  });
+  const app = await createApp();
 
   app.listen(env.port, () => {
     console.log(`Server running on port ${env.port}`);
