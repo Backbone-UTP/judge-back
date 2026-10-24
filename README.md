@@ -73,6 +73,7 @@ REDIS_HOST=localhost
 REDIS_PORT=6378
 BULLBOARD_PORT=7307
 BULLMQ_HEALTH_QUEUE=health-check-queue
+BULLMQ_SUBMISSION_QUEUE=submission-queue
 
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com 
 JWT_SECRET=replace-with-a-strong-secret
@@ -167,6 +168,10 @@ Respuesta esperada (ejemplo):
 
 Cada vez que llamas `GET /health`, el backend crea un job nuevo en BullMQ.
 Luego lo puedes ver en Bull Board.
+
+La creacion de una submission tambien publica un job `submission-job` en la cola
+`submission-queue`. Bull Board descubre las colas cuando inicia; si agregas una
+cola nueva, reinicia el contenedor `judge-back-bullboard`.
 
 ### Base de datos creada antes de Prisma
 
@@ -293,6 +298,16 @@ Prueba rapida de BullMQ:
 1. Ejecuta `curl http://localhost:3000/health` varias veces.
 2. Abre Bull Board en `http://localhost:7307`.
 3. Valida que existe actividad en la cola `health-check-queue`.
+
+Prueba de la cola de submissions:
+
+1. Inicia la API y autentica un usuario con Google.
+2. Crea una submission mediante `POST /submissions`.
+3. Abre Bull Board y valida la cola `submission-queue`.
+4. Verifica que el job se llame `submission-job` y que su payload incluya `submissionId`, `problemId`, `userId`, `language` y `sourceCode`.
+
+Si Redis no responde despues de crear la submission, la API responde `503` y
+la submission queda con estado `queue_error` y el motivo guardado en `queue_error`.
 
 Detener infraestructura local:
 

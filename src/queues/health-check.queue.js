@@ -6,10 +6,18 @@ const connection = {
   port: env.redis.port,
 };
 
-const healthCheckQueue = new Queue(env.bullmq.healthQueueName, { connection });
+let healthCheckQueue;
+
+function getHealthCheckQueue() {
+  if (!healthCheckQueue) {
+    healthCheckQueue = new Queue(env.bullmq.healthQueueName, { connection });
+  }
+
+  return healthCheckQueue;
+}
 
 async function enqueueHealthCheckJob() {
-  return healthCheckQueue.add('health-check-job', {
+  return getHealthCheckQueue().add('health-check-job', {
     createdAt: new Date().toISOString(),
   });
 }
