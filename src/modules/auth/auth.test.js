@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 const Module = require('node:module');
 const path = require('node:path');
 
-const servicePath = path.join(__dirname, '..', 'src', 'modules', 'auth', 'auth.service.js');
-const middlewarePath = path.join(__dirname, '..', 'src', 'modules', 'auth', 'auth.middleware.js');
+const servicePath = path.join(__dirname, 'auth.service.js');
+const middlewarePath = path.join(__dirname, 'auth.middleware.js');
 
 function withModuleMocks(mocks, loader) {
   const originalLoad = Module._load;
@@ -224,4 +224,123 @@ test('authGuard accepts a bearer token and attaches the authenticated user', asy
     id: 42,
     email: 'student@example.com',
   });
+});
+
+test('judgeGuard allows access with valid x-judge-token header', async () => {
+  const { judgeGuard } = loadAuthMiddleware(() => {});
+
+  const req = {
+    headers: {
+      'x-judge-token': 'judge-internal-secret',
+    },
+  };
+
+  let nextCalled = false;
+  judgeGuard(req, {}, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true);
+  assert.equal(req.isJudge, true);
+});
+
+test('judgeGuard allows access with Bearer token matching judge secret', async () => {
+  const { judgeGuard } = loadAuthMiddleware(() => {});
+
+  const req = {
+    headers: {
+      authorization: 'Bearer judge-internal-secret',
+    },
+  };
+
+  let nextCalled = false;
+  judgeGuard(req, {}, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true);
+  assert.equal(req.isJudge, true);
+});
+
+test('judgeGuard allows access with JWT containing role judge', async () => {
+  const { judgeGuard } = loadAuthMiddleware((token) => {
+    assert.equal(token, 'jwt-judge-token');
+    return { sub: 99, email: 'judge@example.com', role: 'judge' };
+  });
+
+  const req = {
+    headers: {
+      authorization: 'Bearer jwt-judge-token',
+    },
+  };
+
+  let nextCalled = false;
+  judgeGuard(req, {}, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true);
+  assert.equal(req.isJudge, true);
+  assert.equal(req.user.role, 'judge');
+});
+
+test('judgeGuard rejects ordinary user token with 403 Forbidden', async () => {
+  const { judgeGuard } = loadAuthMiddleware((token) => {
+    assert.equal(token, 'student-token');
+    return { sub: 42, email: 'student@example.com' };
+  });
+
+  const req = {
+    headers: {
+      authorization: 'Bearer student-token',
+    },
+  };
+
+  const res = {
+    statusCode: null,
+    body: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json(payload) {
+      this.body = payload;
+      return this;
+    },
+  };
+
+  let nextCalled = false;
+  judgeGuard(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, false);
+  assert.equal(res.statusCode, 403);
+  assert.match(res.body.message, /judge access required/i);
+});
+
+test('judgeGuard rejects missing credentials with 401 Unauthorized', async () => {
+  const { judgeGuard } = loadAuthMiddleware(() => {});
+
+  const req = { headers: {} };
+  const res = {
+    statusCode: null,
+    body: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json(payload) {
+      this.body = payload;
+      return this;
+    },
+  };
+
+  let nextCalled = false;
+  judgeGuard(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, false);
+  assert.equal(res.statusCode, 401);
 });

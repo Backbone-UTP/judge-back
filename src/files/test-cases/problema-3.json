@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "problem_id": 3,
+    "input": "1 1",
+    "expected_output": "2",
+    "is_sample": true,
+    "sort_order": 1
+  },
+  {
+    "id": 2,
+    "problem_id": 3,
+    "input": "100 200",
+    "expected_output": "300",
+    "is_sample": false,
+    "sort_order": 2
+  }
+]
