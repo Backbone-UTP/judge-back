@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const testCasesService = require('./test-cases.service');
-const { authGuard } = require('../auth/auth.middleware');
+const { judgeGuard } = require('../auth/auth.middleware');
 
 const router = Router();
 
@@ -27,7 +27,7 @@ router.get('/public/:problemId', async (req, res, next) => {
   }
 });
 
-router.get('/:problemId', authGuard, async (req, res, next) => {
+router.get('/:problemId', judgeGuard, async (req, res, next) => {
   try {
     const { problemId } = req.params;
     const testCases = await testCasesService.getAllTestCases(problemId);

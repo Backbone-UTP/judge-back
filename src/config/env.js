@@ -23,6 +23,9 @@ const env = {
   bullmq: {
     healthQueueName: process.env.BULLMQ_HEALTH_QUEUE || 'health-check-queue',
   },
+  judge: {
+    secret: process.env.JUDGE_SECRET || 'judge-internal-secret',
+  },
 };
 
 module.exports = env;
