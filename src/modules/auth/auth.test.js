@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 const Module = require('node:module');
 const path = require('node:path');
 
-const servicePath = path.join(__dirname, '..', 'src', 'modules', 'auth', 'auth.service.js');
-const middlewarePath = path.join(__dirname, '..', 'src', 'modules', 'auth', 'auth.middleware.js');
+const servicePath = path.join(__dirname, 'auth.service.js');
+const middlewarePath = path.join(__dirname, 'auth.middleware.js');
 
 function withModuleMocks(mocks, loader) {
   const originalLoad = Module._load;
